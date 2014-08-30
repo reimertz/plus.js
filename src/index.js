@@ -36,58 +36,57 @@
     return this.templateCache[templateName];
   }
 
+  var loopCache = [];
+  var partialLoopCache = [];
+
   function Writer() {
     this.functionCache = [];
-    this.loopCache = [];
-    this.partialLoopCache = [];
+    this.funcKeys = 'loop ,loopPartial, ifelse, quote, apostrophe, element,';
+    this.functionArray = [this.loop, this.loopPartial, this.ifelse, this.quote, this.apostrophe, this.element];
   };
-
+  
   Writer.prototype.render = function(plusTemplate, templateData) {
     var id = plusTemplate.id;
-    
-    //plus.js reserved name
-    templateData.element = '\'+ element +\'';
-    
     var keys = Object.keys(templateData);
     var length = keys.length;
     var values = [];
+
     for (var i = 0; i < length; i++) {
       values[i] = templateData[keys[i]];
     }
     
-     if (!this.functionCache[id]) {
+    if (!this.functionCache[id]) {
       var preparedTemplate = "return '"+ plusTemplate.value + "'";  
       this.functionCache[id] = 
-        new Function(defaultPlusUtils.funcKeys + keys.join(','), preparedTemplate);
+        new Function(this.funcKeys + keys.join(','), preparedTemplate);
     }
     
-    return this.functionCache[id].apply(defaultWriter, defaultPlusUtils.functionArray.concat(values));
+    return this.functionCache[id].apply(this, this.functionArray.concat(values));
   }
 
-  function PlusUtils() {
-    this.funcKeys = 'loop,loopPartial,ifelse,quote,apostrophe,';
-    this.functionArray = [this.loop,this.loopPartial,this.ifelse,this.quote,this.apostrophe];
-  }
-
-  PlusUtils.prototype.loop = function(templateData, htmlSkeleton) {
-    var id = fastHash(htmlSkeleton);
+  Writer.prototype.loop = function(templateData, htmlSkeleton) {
+    plus.renderHTML(htmlSkeleton, templateData);
+  //   var id = fastHash(htmlSkeleton);
     
-    if (!this.loopCache[id]) {            
-      var preparedTemplate = '';
+  //   if (!loopCache[id] || templateData.length != loopCache[id].length) {        
+  //     var preparedTemplate = '';
       
-      for(var i = 0; i<templateData.length; i++){
-        preparedTemplate += htmlSkeleton.replace('element', 'element[' + i + ']');
-      }
+  //     for(var i = 0; i<templateData.length; i++){
+  //       preparedTemplate += htmlSkeleton.replace('element', 'element[' + i + ']');
+  //     }
     
-      this.loopCache[id] = new Function('p, element', "return '" + preparedTemplate + "'");
-    }
+  //     loopCache[id] = {
+  //       func : new Function('element', "return '" + preparedTemplate + "'"),
+  //       length : templateData.length
+  //     }
+  //   }
 
-    return this.loopCache[id](this, templateData);
-  };
+  //   return loopCache[id].func.call(this, templateData);
+  // };
+  }
 
-    
-PlusUtils.prototype.loopPartial = function(templateData, templateName) {
-  if (!this.partialLoopCache[templateName]) {
+Writer.prototype.loopPartial = function(templateData, templateName) {
+  if (!partialLoopCache[templateName] || templateData.length != partialLoopCache[templateName].length) {
     var preparedTemplate = '',
         plusTemplate = plus.getTemplate(templateName).value;   
 
@@ -95,24 +94,28 @@ PlusUtils.prototype.loopPartial = function(templateData, templateName) {
       preparedTemplate += plusTemplate.replace('element', 'element[' + i + ']');
     }
 
-    this.partialLoopCache[templateName] = new Function('p, d', "return '" + preparedTemplate + "'");
+    partialLoopCache[templateName] = {
+      func : new Function('p, element', "return '" + preparedTemplate + "'"),
+      length : templateData.length
+    }
   }
-  return this.partialLoopCache[templateName](this, {element:templateData});
+  return partialLoopCache[templateName].func(this, templateData);
 }
 
-PlusUtils.prototype.ifelse = function(statement, showData, elseData){
+Writer.prototype.ifelse = function(statement, showData, elseData){
   return (statement !== void 0 && statement) ? showData : (elseData || '');
 };
-PlusUtils.prototype.quote = function(text) {
+Writer.prototype.quote = function(text) {
   return (text) ? '\"' + text + '\"' : '\"'
 };
-PlusUtils.prototype.apostrophe = function(text) {
+Writer.prototype.apostrophe = function(text) {
   return (text) ? '\'' + text + '\''  : '\'';
 };
 
+Writer.prototype.element = '\'+ element +\'';
+
 var defaultScanner = new Scanner();
 var defaultWriter = new Writer();
-var defaultPlusUtils = new PlusUtils();
       
   plus.init = function(){
     var style = document.createElement("style");
