@@ -16,7 +16,6 @@
     factory(global.plus = {});
   }
 }(this, function (plus) {
-  
   function fastHash(s) {
     var hash = 0, i = s.length-1;
     for ( ; i >= 0 ; --i) {
@@ -39,25 +38,35 @@
 
   function Writer() {
     this.functionCache = [];
+    this.loopCache = [];
+    this.partialLoopCache = [];
   };
 
   Writer.prototype.render = function(plusTemplate, templateData) {
     var id = plusTemplate.id;
+    
     //plus.js reserved name
-    templateData.item = '\'+ d.item +\'';
-
-     if (!this.functionCache[id]) {
-      var preparedTemplate = "return '"+ plusTemplate.value + "'";
-
-      this.functionCache[id] = new Function('p, d', preparedTemplate);
+    templateData.element = '\'+ element +\'';
+    
+    var keys = Object.keys(templateData);
+    var length = keys.length;
+    var values = [];
+    for (var i = 0; i < length; i++) {
+      values[i] = templateData[keys[i]];
     }
     
-    return this.functionCache[id](defaultPlusUtils, templateData);
+     if (!this.functionCache[id]) {
+      var preparedTemplate = "return '"+ plusTemplate.value + "'";  
+      this.functionCache[id] = 
+        new Function(defaultPlusUtils.funcKeys + keys.join(','), preparedTemplate);
+    }
+    
+    return this.functionCache[id].apply(defaultWriter, defaultPlusUtils.functionArray.concat(values));
   }
 
   function PlusUtils() {
-    this.loopCache = [];
-    this.partialLoopCache = [];
+    this.funcKeys = 'loop,loopPartial,ifelse,quote,apostrophe,';
+    this.functionArray = [this.loop,this.loopPartial,this.ifelse,this.quote,this.apostrophe];
   }
 
   PlusUtils.prototype.loop = function(templateData, htmlSkeleton) {
@@ -67,13 +76,13 @@
       var preparedTemplate = '';
       
       for(var i = 0; i<templateData.length; i++){
-        preparedTemplate += htmlSkeleton.replace('d.item', 'd.item[' + i + ']');
+        preparedTemplate += htmlSkeleton.replace('element', 'element[' + i + ']');
       }
-
-    this.loopCache[id] = new Function('p, d', "return '" + preparedTemplate + "'");
+    
+      this.loopCache[id] = new Function('p, element', "return '" + preparedTemplate + "'");
     }
 
-    return this.loopCache[id](this, {item:templateData});
+    return this.loopCache[id](this, templateData);
   };
 
     
@@ -83,16 +92,15 @@ PlusUtils.prototype.loopPartial = function(templateData, templateName) {
         plusTemplate = plus.getTemplate(templateName).value;   
 
     for(var i = 0; i<templateData.length; i++){
-      preparedTemplate += plusTemplate.replace('d.item', 'd.item[' + i + ']');
+      preparedTemplate += plusTemplate.replace('element', 'element[' + i + ']');
     }
-    
+
     this.partialLoopCache[templateName] = new Function('p, d', "return '" + preparedTemplate + "'");
   }
-
-  return this.partialLoopCache[templateName](this, {item:templateData});
+  return this.partialLoopCache[templateName](this, {element:templateData});
 }
 
-PlusUtils.prototype.if = function(statement, showData, elseData){
+PlusUtils.prototype.ifelse = function(statement, showData, elseData){
   return (statement !== void 0 && statement) ? showData : (elseData || '');
 };
 PlusUtils.prototype.quote = function(text) {

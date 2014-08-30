@@ -21,7 +21,7 @@ http://jsperf.com/mustache-against-handlebars/10
 Usage
 -------
 
-### Variables
+### Variables (d.variable)
 ```javascript
 //<input plus-template id="framework" value="
 //  <span>This framework is called '+ d.name +' </span>
@@ -29,35 +29,67 @@ Usage
 
 plus.render(plus.getTemplate('framework'), {name:'plus.js'})
 ```
-The templateData passed in is reached from the variable d, (d standing for data).
-So, to inject data into the template, just use, `'+ d.key +'`.
+The template data is reached by prefixing an variable with "d." (d standing for data).
+So, '+ d.variable +'.
 
-### Loops
+### Functions (p.functions)
 
 ```javascript
 //<input plus-template id="loop" value="
-//  <span>plus.js can</span>
 //  <ul>
-//    '+ p.loop('<li>', d.array, '</li>') +'
+//    '+ p.loop(d.array, '<li>', d.item, '</li>') +'
 //  </ul>
+//  <a href='+ p.quote('mailto:' + d.mail) +'> '+ d.mail+'</a>
 //">
-plus.render(plus.getTemplate('loop'), {array:['template','compile','loops','if-statements']});
+plus.render(plus.getTemplate('loop'), {mail: 'pierre@pierrereimertz.com', array:['h','e','l','l','o']});
 ```
 
-All plus.js functions are reached from variable p.
-
-Inorder to maintain the string evaulable, we pass in what we want to have before and after the injected data
-into the loop-function, like this: p.loop(before,data,after);
-
-At the moment, plus.js only supports arrays with depth = 1. Support for deeper depths will of course get added
-in the future.
-
-### if-statements
+All plus.js functions are reached from variable p, and 
 
 ```javascript
-//<input plus-template id="ifs" value="
-//  '+ p.if(d.doNotRender, '<h1>This will not rendered.</h1>', '<h1>But this will.</h1>') +'   
-//">
-plus.render(plus.getTemplate('ifs'), {doRender:true});
-plus.render(plus.getTemplate('ifs'), {dontRender:false});
+'+ p.loop(d.array, '<li>'+ d.item +'</li>') +'
+'+ p.loopPartial(d.array, 'templateName') +'
+'+ p.if(variable, 'this will be rendered if true', 'this will be rendered if false (optional)') +'   
+'+ p.quote('this will be quoted') 
+'+ p.apostrophe('this will be apostrophed') 
+```
+
+### A complex example
+```html
+<input plus-template id="loopMe.gear" value="
+<li>'+ d.item.name +'</li>
+">
+
+<input plus-template id="loopMe" value="
+<h1>'+ d.name +'</h1>
+<h3>'+ d.age +' years old</h3>
+<a href='+ p.quote('mailto:' + d.mail) +'> '+ d.mail+'</a>
+<h3>'+ d.mail +' years old</h3>
+Likes:
+<ul>
+'+  p.loop(d.likes, '<li>'+ d.item +'</li>') +'  
+</ul>
+
+<ul>
+'+  p.loopPartial(d.gear , 'loopMe.gear') +' 
+</ul>
+">
+```
+```javascript
+var me = {
+    age: 27,
+    name: 'Pierre Reimertz',
+    mail: 'pierre@pierrereimertz.com',
+    likes: ['music','programming','beer'],
+    gear:[{
+      name: 'macbook pro retina'
+    },{
+      name: 'macbook white'
+    },{
+      name: 'iPad Air'
+    },{
+      name: 'iPhone 4S'
+    }]
+  };
+document.write(plus.render(plus.getTemplate('loopMe'),me));
 ```
