@@ -16,7 +16,7 @@ templating-engine.
 ">
 ```
 ```javascript
-plus.render('exampleTemplate', {name:'plus.js'});
+plus.render(plus.getTemplate('exampleTemplate'), {name:'plus.js'});
 //plus.js is an lightweight and performant
 //templating-engine.
 
@@ -35,7 +35,7 @@ This makes it very fast! http://jsperf.com/mustache-against-handlebars/19
 ">
 ```
 ```javascript
-plus.render('frameworkTemplate', {name:'plus.js', array:['Cats','red', 5]);
+plus.render(plus.getTemplate('frameworkTemplate'), {name:'plus.js', array:['Cats','red', 5]);
 //<h1>This framework is called plus.js</h1>
 //<i>Cats love it!</i>
 ```
@@ -65,7 +65,7 @@ var data = {
     'Gering-ding-ding-ding-dingeringeding!'
 ]};
 
-plus.render('foxTemplate', data);
+plus.render(plus.getTemplate('foxTemplate'), data);
 //<h2>What did the fox say?</h2>
 //<ul>
 //  <li>'Ring-ding-ding-ding-dingeringeding!'</li>
@@ -109,7 +109,7 @@ var data = {
     }
 ]};
 
-plus.render('meTemplate', data);
+plus.render(plus.getTemplate('meTemplate'), data);
 //<h2>I really love these kind of things:</h2>
 //<ul>
 //  <li>
@@ -141,7 +141,7 @@ var data = {
   plusjsRockz : true
 };
 
-plus.render('meTemplate', data);
+plus.render(plus.getTemplate('meTemplate'), data);
 //<b>this is a if-statement</b>
 //and <i>this is a else-statement</i>
 ```
@@ -210,7 +210,7 @@ var jane = {
 ```
 #### result
 ```javascript
-plus.render('janeTemplate',jane);
+plus.render(plus.getTemplate('janeTemplate'),jane);
 //<h1>Jane Complex</h1>
 //<h3>23 years old</h3><a href="mailto:jane@d.oe"> jane@d.oe</a>
 //<h3>jane@d.oe years old</h3>Likes:
