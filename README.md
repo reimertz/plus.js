@@ -1,95 +1,228 @@
 plus.js
 =======
 
+
 An lightweight, high-performance templating engine based on two eureka moments:
 
-1. Everything in input.value will be returned as a one-line. So plus.js use `<input plus-template id="" value="">` to store templates.
-2. Use '+  +'  as tags inside input.value since this will make the string evaulable.
+* Everything stored `<input value="here">` will be returned as one-line(even if lines>1).
+
+* Use '+ +' as tags since this make the template evaluable.
 
 These combined enable the following:
+```html
+<input plus id="exampleTemplate" value="
+'+ name +' is an lightweight and performant
+templating-engine.
+">
+```
 ```javascript
-var preparedTemplate = "return '"+ plusTemplate.value + "'",
-    compileFunction = new Function('p', 'd', preparedTemplate);
-    return compileFunction(_plusUtils, templateData, preparedTemplate);
+plus.render('exampleTemplate', {name:'plus.js'});
+//plus.js is an lightweight and performant
+//templating-engine.
+
 ```
 
 plus.js also caches all the templates based on their ID's so, no need to compile a template twice.
 
-This makes it very fast.
-http://jsperf.com/mustache-against-handlebars/10
+This makes it very fast! http://jsperf.com/mustache-against-handlebars/19
 
-Usage
--------
+## Variables
 
-### Variables (d.variable)
-```javascript
-//<input plus-template id="framework" value="
-//  <span>This framework is called '+ d.name +' </span>
-//">
-
-plus.render(plus.getTemplate('framework'), {name:'plus.js'})
-```
-The template data is reached by prefixing an variable with "d." (d standing for data).
-So, '+ d.variable +'.
-
-### Functions (p.functions)
-
-```javascript
-//<input plus-template id="loop" value="
-//  <ul>
-//    '+ p.loop(d.array, '<li>', d.item, '</li>') +'
-//  </ul>
-//  <a href='+ p.quote('mailto:' + d.mail) +'> '+ d.mail+'</a>
-//">
-plus.render(plus.getTemplate('loop'), {mail: 'pierre@pierrereimertz.com', array:['h','e','l','l','o']});
-```
-
-All plus.js functions are reached from variable p, and 
-
-```javascript
-'+ p.loop(d.array, '<li>'+ d.item +'</li>') +'
-'+ p.loopPartial(d.array, 'templateName') +'
-'+ p.if(variable, 'this will be rendered if true', 'this will be rendered if false (optional)') +'   
-'+ p.quote('this will be quoted') 
-'+ p.apostrophe('this will be apostrophed') 
-```
-
-### A complex example
 ```html
-<input plus-template id="loopMe.gear" value="
-<li>'+ d.item.name +'</li>
+<input plus id="frameworkTemplate" value="
+<h1>This framework is called '+ name +'</h1>
+<i>'+ array[0] +' loves it!</i>
+">
+```
+```javascript
+plus.render('frameworkTemplate', {name:'plus.js', array:['Cats','red', 5]);
+//<h1>This framework is called plus.js</h1>
+//<i>Cats love it!</i>
+```
+
+## Functions
+plus.js has basic support for looping, partials and if-statements.
+
+###loop
+
+When looping over an array, use '+ element +' where you want to
+inject each element of the array.
+
+```html
+<input plus id="foxTemplate" value="
+  <h2>What did the fox say?</h2>
+  <ul>
+    '+ loop(foxSaid, '<li>'+ element +'</li>') +'
+  </ul>
+">
+```
+
+```javascript
+var data = {
+  foxSaid: [
+    'Ring-ding-ding-ding-dingeringeding!',
+    'Gering-ding-ding-ding-dingeringeding!',
+    'Gering-ding-ding-ding-dingeringeding!'
+]};
+
+plus.render('foxTemplate', data);
+//<h2>What did the fox say?</h2>
+//<ul>
+//  <li>'Ring-ding-ding-ding-dingeringeding!'</li>
+//  <li>'Gering-ding-ding-ding-dingeringeding!',</li>
+//  <li>'Gering-ding-ding-ding-dingeringeding!'</li>
+//</ul>
+```
+
+###partial
+
+If you want to render more complex templates, use partials.
+
+As before, use '+ element +' to reach child-keys.
+
+```html
+<input plus id="meTemplate.love" value="
+  <li>
+    <h4><b>'+ element.name +'</b></h4>
+    <p><i>'+ element.why +'</i></p>
+  </li>
 ">
 
-<input plus-template id="loopMe" value="
-<h1>'+ d.name +'</h1>
-<h3>'+ d.age +' years old</h3>
-<a href='+ p.quote('mailto:' + d.mail) +'> '+ d.mail+'</a>
-<h3>'+ d.mail +' years old</h3>
+<input plus id="meTemplate" value="
+  <h2>I really '+ doWhat +' these kind of things:</h2>
+  <ul>
+    '+  partial(data.love , 'meTemplate.love') +' 
+  </ul>
+">
+```
+
+```javascript
+var data = {
+  doWhat: 'love',
+  love: [
+    {
+      name: 'A specific girl',
+      why: 'Because she is my everything.'
+    },{
+      name: 'My guitar',
+      why: 'Because it makes me forget what is worth forgetting.'
+    }
+]};
+
+plus.render('meTemplate', data);
+//<h2>I really love these kind of things:</h2>
+//<ul>
+//  <li>
+//    <h4><b>A specific girl</b></h4>
+//    <p><i>Because she is my everything.</i></p>
+//  </li>
+//  <li>
+//    <h4><b>My guitar</b></h4>
+//    <p><i>Because it makes me forget what is worth forgetting.</i></p>
+//  </li>
+//</ul>
+```
+
+###if-statements
+
+If you want to render more complex templates, use partials.
+
+As before, use '+ element +' to reach child-keys.
+
+```html
+<input plus-template id="ifTemplate" value="
+<b>'+ i(plusjsRockz, 'this is a if-statement')+'</b>
+and <i>'+ ielse(!plusjsRockz, 'This will not be rendered', 'this is a else-statement') +'</i>
+">
+```
+
+```javascript
+var data = {
+  plusjsRockz : true
+};
+
+plus.render('meTemplate', data);
+//<b>this is a if-statement</b>
+//and <i>this is a else-statement</i>
+```
+
+## Utilities
+
+### Quotes
+```javascript
+var data = {
+  mail:'pierre.reimertz@gmail.com'
+};
+
+plus.renderHTML('<a href='+ quote('mailto:' + mail) +'> '+ mail+'</a>', data);
+//<a href="mailto:pierre.reimertz@gmail.com">pierre.reimertz@gmail.com</a>
+```
+
+### Apostrophes
+```javascript
+var data = {
+  name: 'plus.js'
+};
+
+plus.renderHTML('<span>'+ quote(name) +'</span>', data);
+//<span>'plus.js'</span>
+```
+
+### Example
+#### template
+```html
+<input plus id="janeTemplate.gear" value="
+<li>'+ elemen.name +'</li>
+">
+
+<input plus id="janeTemplate" value="
+<h1>'+ name +'</h1>
+<h3>'+ age +' years old</h3>
+<a href='+ quote('mailto:' + mail) +'> '+ mail+'</a>
+<h3>'+ mail +' years old</h3>
 Likes:
 <ul>
-'+  p.loop(d.likes, '<li>'+ d.item +'</li>') +'  
+'+  loop(likes, '<li>'+ item +'</li>') +'  
 </ul>
 
 <ul>
-'+  p.loopPartial(d.gear , 'loopMe.gear') +' 
+'+  partial(gear , 'janeTemplate.gear') +' 
 </ul>
 ">
 ```
+#### data
 ```javascript
-var me = {
-    age: 27,
-    name: 'Pierre Reimertz',
-    mail: 'pierre@pierrereimertz.com',
-    likes: ['music','programming','beer'],
-    gear:[{
-      name: 'macbook pro retina'
-    },{
-      name: 'macbook white'
-    },{
-      name: 'iPad Air'
-    },{
-      name: 'iPhone 4S'
-    }]
-  };
-document.write(plus.render(plus.getTemplate('loopMe'),me));
+var jane = {
+  age: 23,
+  name: 'Jane Complex',
+  mail: 'jane@d.oe',
+  likes: ['music','programming','beer'],
+  gear:[{
+    name: 'macbook pro retina'
+  },{
+    name: 'macbook white'
+  },{
+    name: 'iPad Air'
+  },{
+    name: 'iPhone 4S'
+  }]
+};
+```
+#### result
+```javascript
+plus.render('janeTemplate',jane);
+//<h1>Jane Complex</h1>
+//<h3>23 years old</h3><a href="mailto:jane@d.oe"> jane@d.oe</a>
+//<h3>jane@d.oe years old</h3>Likes:
+//<ul>
+    //<li>music</li>
+    //<li>programming</li>
+    //<li>beer</li>
+//</ul>Gear:
+//<ul>
+    //<li>macbook pro retina</li>
+    //<li>macbook white</li>
+    //<li>iPad Air</li>
+    //<li>iPhone 4S</li>
+//</ul>
 ```

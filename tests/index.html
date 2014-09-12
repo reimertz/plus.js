@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="text/javascript" src=".build/plus.js"></script>
+</head>
+<body>
+
+<input plus id="framework" value="
+<h1>This is a '+ name +' test page</h1>
+">
+
+<input plus id="loopArray" value="
+
+<p>'+ name +' should be able to </p>
+<ul>
+'+ loop(array, '<li><b>'+ element +'</b></li>') +'
+</ul>
+
+">
+
+<input plus id="if" value="
+
+It should also be able to do <b>'+ i(doRender, 'if statements')+'</b> 
+and '+ ielse(!doRender, 'This will not be rendered', '<b>if-else ' + kindOfWhat +'</b>') 
++'
+
+">
+
+<input plus id="loopMe.gear" value="
+<li>'+ element.name +'</li>
+">
+
+<input plus id="loopMe" value="
+<h1>'+ name +'</h1>
+<h3>'+ age +' years old</h3>
+<a href='+ quote('mailto:' + mail) +'> '+ mail+'</a>
+<h3>'+ mail +' years old</h3>
+Likes:
+<ul>
+'+  loop(likes, '<li>'+ element +'</li>') +'  
+</ul>
+Gear:
+<ul>
+'+  partial(gear , 'loopMe.gear') +' 
+</ul>
+">
+<script type="text/javascript">
+
+  var jane = {
+    age: 23,
+    name: 'Jane Complex',
+    mail: 'jane@d.oe',
+    likes: ['music','programming','beer'],
+    gear:[{
+      name: 'macbook pro retina'
+    },{
+      name: 'macbook white'
+    },{
+      name: 'iPad Air'
+    },{
+      name: 'iPhone 4S'
+    }]
+  };
+    var james = {
+    age: 22,
+    name: 'James Complex',
+    mail: 'ja@mes.doe',
+    likes: ['liking things','flowers'],
+    gear:[{
+      name: 'Flowers'
+    },{
+      name: 'Garden'
+    },{
+      name: 'Pink cat'
+    }]
+  };
+
+  document.write(plus.render(plus.getTemplate('framework'), {name:'plus.js'}));
+  document.write(plus.renderHTML("<h2>And hopefully, everything '+ what +'</h2>", {what:'works!'}));
+  document.write(plus.render(plus.getTemplate('loopArray'), {name:'plus.js', array:['i','t','e','r', 'a','t','e']}));
+  document.write(plus.render(plus.getTemplate('if'), {doRender:true, kindOfWhat:'statements'}));
+  document.write(plus.render(plus.getTemplate('loopMe'),jane));
+  document.write(plus.render(plus.getTemplate('loopMe'),james));
+
+  document.write('<h1> Done!!</h2>');
+
+</script>
+</body>
+</html>

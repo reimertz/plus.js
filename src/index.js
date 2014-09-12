@@ -41,11 +41,11 @@
 
   function Writer() {
     this.functionCache = [];
-    this.funcKeys = 'loop ,loopPartial, ifelse, quote, apostrophe, element,';
-    this.functionArray = [this.loop, this.loopPartial, this.ifelse, this.quote, this.apostrophe, this.element];
+    this.funcKeys = 'loop ,partial, i, ielse, quote, apostrophe, element,';
+    this.functionArray = [this.loop, this.partial, this.i, this.ielse, this.quote, this.apostrophe, this.element];
   };
   
-  Writer.prototype.render = function(plusTemplate, templateData) {
+  Writer.prototype.render = function(plusTemplate, templateData, loopNr) {
     var id = plusTemplate.id;
     var keys = Object.keys(templateData);
     var length = keys.length;
@@ -65,27 +65,25 @@
   }
 
   Writer.prototype.loop = function(templateData, htmlSkeleton) {
-    plus.renderHTML(htmlSkeleton, templateData);
-  //   var id = fastHash(htmlSkeleton);
+    var id = fastHash(htmlSkeleton);
     
-  //   if (!loopCache[id] || templateData.length != loopCache[id].length) {        
-  //     var preparedTemplate = '';
+    if (!loopCache[id] || templateData.length != loopCache[id].length) {        
+      var preparedTemplate = '';
       
-  //     for(var i = 0; i<templateData.length; i++){
-  //       preparedTemplate += htmlSkeleton.replace('element', 'element[' + i + ']');
-  //     }
+      for(var i = 0; i<templateData.length; i++){
+        preparedTemplate += htmlSkeleton.replace('element', 'element[' + i + ']');
+      }
     
-  //     loopCache[id] = {
-  //       func : new Function('element', "return '" + preparedTemplate + "'"),
-  //       length : templateData.length
-  //     }
-  //   }
+      loopCache[id] = {
+        func : new Function('element', "return '" + preparedTemplate + "'"),
+        length : templateData.length
+      }
+    }
 
-  //   return loopCache[id].func.call(this, templateData);
-  // };
-  }
+    return loopCache[id].func.call(this, templateData);
+  };
 
-Writer.prototype.loopPartial = function(templateData, templateName) {
+Writer.prototype.partial = function(templateData, templateName) {
   if (!partialLoopCache[templateName] || templateData.length != partialLoopCache[templateName].length) {
     var preparedTemplate = '',
         plusTemplate = plus.getTemplate(templateName).value;   
@@ -102,9 +100,15 @@ Writer.prototype.loopPartial = function(templateData, templateName) {
   return partialLoopCache[templateName].func(this, templateData);
 }
 
-Writer.prototype.ifelse = function(statement, showData, elseData){
+Writer.prototype.i = function(statement, showData){
+  return (statement !== void 0 && statement) ? showData || '' : '';
+};
+
+Writer.prototype.ielse = function(statement, showData, elseData){
   return (statement !== void 0 && statement) ? showData : (elseData || '');
 };
+
+
 Writer.prototype.quote = function(text) {
   return (text) ? '\"' + text + '\"' : '\"'
 };
@@ -119,7 +123,7 @@ var defaultWriter = new Writer();
       
   plus.init = function(){
     var style = document.createElement("style");
-        style.innerHTML = 'input[plus-template]{display:none !important;visibility:hidden !important;}';
+        style.innerHTML = 'input[plus]{display:none !important;visibility:hidden !important;}';
         style.type = "text/css";
         style.rel = "stylesheet";
 
