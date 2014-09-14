@@ -56,7 +56,7 @@
     }
     
     if (!this.functionCache[id]) {
-      var preparedTemplate = "return '"+ plusTemplate.value + "'";  
+      var preparedTemplate = "return '" + plusTemplate.textContent.replace(/(\r\n|\n|\r)/gm,"") + "'";  
       this.functionCache[id] = 
         new Function(this.funcKeys + keys.join(','), preparedTemplate);
     }
@@ -86,7 +86,7 @@
 Writer.prototype.partial = function(templateData, templateName) {
   if (!partialLoopCache[templateName] || templateData.length != partialLoopCache[templateName].length) {
     var preparedTemplate = '',
-        plusTemplate = plus.getTemplate(templateName).value;   
+        plusTemplate = plus.getTemplate(templateName).textContent.replace(/(\r\n|\n|\r)/gm,"");   
 
     for(var i = 0; i<templateData.length; i++){
       preparedTemplate += plusTemplate.replace('element', 'element[' + i + ']');
@@ -121,15 +121,6 @@ Writer.prototype.element = '\'+ element +\'';
 var defaultScanner = new Scanner();
 var defaultWriter = new Writer();
       
-  plus.init = function(){
-    var style = document.createElement("style");
-        style.innerHTML = 'input[plus]{display:none !important;visibility:hidden !important;}';
-        style.type = "text/css";
-        style.rel = "stylesheet";
-
-    document.getElementsByTagName("head")[0].appendChild(style);
-  }
-
   plus.render = function(plusTemplate, templateData) {
     return defaultWriter.render(plusTemplate, templateData);
   }
@@ -137,7 +128,7 @@ var defaultWriter = new Writer();
 
   plus.renderHTML = function(htmlSkeleton, templateData) {
     var plusTemplate = {
-      value : htmlSkeleton,
+      textContent : htmlSkeleton,
       id : fastHash(htmlSkeleton)
     };
 
@@ -149,8 +140,7 @@ var defaultWriter = new Writer();
   }
 
   plus.name = "plus.js";
-  plus.version = "0.0.1";
+  plus.version = "0.0.2";
   plus.tags = [ "'+", "+'" ];
 
-  plus.init();
 }));

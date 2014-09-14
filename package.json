@@ -1,6 +1,6 @@
 {
   "name": "table-flip",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "TableFlip-enable your homepage!",
   "main": "src/index.js",
   "scripts": {

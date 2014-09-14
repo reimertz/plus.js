@@ -2,24 +2,22 @@ plus.js
 =======
 
 
-An lightweight, high-performance templating engine based on two eureka moments:
-
-* Everything stored `<input value="here">` will be returned as one-line(even if lines>1).
+A lightweight, high-performance templating engine that based on one eureka moment:
 
 * Use '+ +' as tags since this make the template evaluable.
 
-These combined enable the following:
+These enable the following:
 ```html
-<input plus id="exampleTemplate" value="
+<script id="exampleTemplate"  type="text/template">
 '+ name +' is an lightweight and performant
 templating-engine.
-">
+</script>
 ```
+
 ```javascript
 plus.render(plus.getTemplate('exampleTemplate'), {name:'plus.js'});
 //plus.js is an lightweight and performant
 //templating-engine.
-
 ```
 
 plus.js also caches all the templates based on their ID's so, no need to compile a template twice.
@@ -29,10 +27,10 @@ This makes it very fast! http://jsperf.com/mustache-against-handlebars/19
 ## Variables
 
 ```html
-<input plus id="frameworkTemplate" value="
+<script id="frameworkTemplate"  type="text/template">
 <h1>This framework is called '+ name +'</h1>
 <i>'+ array[0] +' loves it!</i>
-">
+</script>
 ```
 ```javascript
 plus.render(plus.getTemplate('frameworkTemplate'), {name:'plus.js', array:['Cats','red', 5]);
@@ -49,12 +47,12 @@ When looping over an array, use '+ element +' where you want to
 inject each element of the array.
 
 ```html
-<input plus id="foxTemplate" value="
+<script id="foxTemplate" type="text/template">
   <h2>What did the fox say?</h2>
   <ul>
     '+ loop(foxSaid, '<li>'+ element +'</li>') +'
   </ul>
-">
+</script>
 ```
 
 ```javascript
@@ -81,19 +79,19 @@ If you want to render more complex templates, use partials.
 As before, use '+ element +' to reach child-keys.
 
 ```html
-<input plus id="meTemplate.love" value="
+<script id="meTemplate.love"  type="text/template">
   <li>
     <h4><b>'+ element.name +'</b></h4>
     <p><i>'+ element.why +'</i></p>
   </li>
-">
+</script>
 
-<input plus id="meTemplate" value="
+<script id="meTemplate"  type="text/template">
   <h2>I really '+ doWhat +' these kind of things:</h2>
   <ul>
     '+  partial(data.love , 'meTemplate.love') +' 
   </ul>
-">
+</script>
 ```
 
 ```javascript
@@ -130,10 +128,10 @@ If you want to render more complex templates, use partials.
 As before, use '+ element +' to reach child-keys.
 
 ```html
-<input plus-template id="ifTemplate" value="
+<input plus-template id="ifTemplate"  type="text/template">
 <b>'+ i(plusjsRockz, 'this is a if-statement')+'</b>
 and <i>'+ ielse(!plusjsRockz, 'This will not be rendered', 'this is a else-statement') +'</i>
-">
+</script>
 ```
 
 ```javascript
@@ -171,11 +169,11 @@ plus.renderHTML('<span>'+ quote(name) +'</span>', data);
 ### Example
 #### template
 ```html
-<input plus id="janeTemplate.gear" value="
+<script id="janeTemplate.gear"  type="text/template">
 <li>'+ elemen.name +'</li>
-">
+</script>
 
-<input plus id="janeTemplate" value="
+<script id="janeTemplate"  type="text/template">
 <h1>'+ name +'</h1>
 <h3>'+ age +' years old</h3>
 <a href='+ quote('mailto:' + mail) +'> '+ mail+'</a>
@@ -188,7 +186,7 @@ Likes:
 <ul>
 '+  partial(gear , 'janeTemplate.gear') +' 
 </ul>
-">
+</script>
 ```
 #### data
 ```javascript
