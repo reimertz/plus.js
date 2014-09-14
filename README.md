@@ -50,7 +50,7 @@ inject each element of the array.
 <script id="foxTemplate" type="text/template">
   <h2>What did the fox say?</h2>
   <ul>
-    '+ loop(foxSaid, '<li>'+ element +'</li>') +'
+    '+ loop(foxSaid).over('<li>'+ element +'</li>') +'
   </ul>
 </script>
 ```
@@ -180,7 +180,7 @@ plus.renderHTML('<span>'+ quote(name) +'</span>', data);
 <h3>'+ mail +' years old</h3>
 Likes:
 <ul>
-'+  loop(likes, '<li>'+ item +'</li>') +'  
+'+  loop(likes).over('<li>'+ element +'</li>') +'  
 </ul>
 
 <ul>

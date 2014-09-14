@@ -13,10 +13,9 @@ loooool!
 </script>
 
 <script id="loopArray" type="text/template">
-
 <p>'+ name +' should be able to </p>
 <ul>
-'+ loop(array, '<li><b>'+ element +'</b></li>') +'
+'+ loop(array).over('<li><b>'+ element +'</b></li>') +'
 </ul>
 </script>
 
@@ -37,7 +36,7 @@ and '+ ielse(!doRender, 'This will not be rendered', '<b>if-else ' + kindOfWhat 
 <h3>'+ mail +' years old</h3>
 Likes:
 <ul>
-'+  loop(likes, '<li>'+ element +'</li>') +'  
+'+  loop(likes).over('<li>'+ element +'</li>') +'  
 </ul>
 Gear:
 <ul>
@@ -81,9 +80,9 @@ Gear:
   document.write(plus.render(plus.getTemplate('loopArray'), {name:'plus.js', array:['i','t','e','r', 'a','t','e']}));
   document.write(plus.render(plus.getTemplate('if'), {doRender:true, kindOfWhat:'statements'}));
   document.write(plus.render(plus.getTemplate('loopMe'),jane));
-  // document.write(plus.render(plus.getTemplate('loopMe'),james));
+  document.write(plus.render(plus.getTemplate('loopMe'),james));
 
-  // document.write('<h1> Done!!</h2>');
+  document.write('<h1> Done!!</h2>');
 
 </script>
 </body>
