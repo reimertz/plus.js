@@ -9,38 +9,39 @@
 
 <script id="framework" type="text/template">
 <h1>This is a '+ name +' test page</h1>
-loooool!
+Vad tror du \'
+kompis?
 </script>
 
 <script id="loopArray" type="text/template">
 <p>'+ name +' should be able to </p>
 <ul>
-'+ loop(array).over('<li><b>'+ element +'</b></li>') +'
+'+ loop(array).as('doez').over('<li><b>doez</b></li>') +'
 </ul>
 </script>
 
 <script id="if" type="text/template">
 It should also be able to do <b>'+ i(doRender, 'if statements')+'</b> 
-and '+ ielse(!doRender, 'This will not be rendered', '<b>if-else ' + kindOfWhat +'</b>') 
+and '+ ielse(!doRender, 'This will not be rendered', '<b>if-else statements</b>') 
 +'
 </script>
 
 <script id="loopMe.gear" type="text/template">
-<li>'+ element.name +'</li>
+<li>'+ gear.name +'</li>
 </script>
 
 <script id="loopMe" type="text/template">
 <h1>'+ name +'</h1>
 <h3>'+ age +' years old</h3>
-<a href='+ quote('mailto:' + mail) +'> '+ mail+'</a>
+<a href="mailto:'+ mail +'">'+ mail +'</a>
 <h3>'+ mail +' years old</h3>
 Likes:
 <ul>
-'+  loop(likes).over('<li>'+ element +'</li>') +'  
+'+  loop(likes).as('element').over('<li>element</li>') +'  
 </ul>
 Gear:
 <ul>
-'+  partial(gear , 'loopMe.gear') +' 
+'+  loop(gearList).as('gear').overPartial('loopMe.gear') +' 
 </ul>
 </script>
 
@@ -51,7 +52,7 @@ Gear:
     name: 'Jane Complex',
     mail: 'jane@d.oe',
     likes: ['music','programming','beer'],
-    gear:[{
+    gearList:[{
       name: 'macbook pro retina'
     },{
       name: 'macbook white'
@@ -78,12 +79,9 @@ Gear:
   document.write(plus.render(plus.getTemplate('framework'), {name:'plus.js'}));
   document.write(plus.renderHTML("<h2>And hopefully, everything '+ what +'</h2>", {what:'works!'}));
   document.write(plus.render(plus.getTemplate('loopArray'), {name:'plus.js', array:['i','t','e','r', 'a','t','e']}));
-  document.write(plus.render(plus.getTemplate('if'), {doRender:true, kindOfWhat:'statements'}));
+  document.write(plus.render(plus.getTemplate('if'), {doRender:true}));
   document.write(plus.render(plus.getTemplate('loopMe'),jane));
   document.write(plus.render(plus.getTemplate('loopMe'),james));
-
-  document.write('<h1> Done!!</h2>');
-
 </script>
 </body>
 </html>

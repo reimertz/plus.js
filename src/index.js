@@ -36,15 +36,60 @@
     return this.templateCache[templateName];
   }
 
-  
-  var partialLoopCache = [];
+  function Looper(templateData) {
+    this.templateData = templateData;
+    this.variableName = 'element';
+    return this;
+  };
+
+  Looper.cache = [];
+  Looper.partialCache = [];
+
+  Looper.prototype.as = function(variableName) {
+    this.variableName = variableName;
+    return this;
+  }
+
+  Looper.prototype.over = function(htmlSkeleton) {
+    var id = fastHash(htmlSkeleton);
+    
+    if (!Looper.cache[id] || this.templateData.length != Looper.cache[id].length) {        
+      var preparedTemplate = '';
+      
+      for(var i = 0; i<this.templateData.length; i++){
+        preparedTemplate += htmlSkeleton.replace(this.variableName, '\'+_P[' + i + ']+\'');
+      }
+      Looper.cache[id] = {
+        func : new Function('_P', "return '" + preparedTemplate + "'"),
+        length : this.templateData.length
+      }
+    }
+    return Looper.cache[id].func.call(this, this.templateData);
+  }
+
+  Looper.prototype.overPartial = function(templateName) {
+    if (!Looper.partialCache[templateName] || this.templateData.length != Looper.partialCache[templateName].length) {
+      var preparedTemplate = '',
+          plusTemplate = plus.getTemplate(templateName).textContent.replace(/(\r\n|\n|\r)/gm,"");   
+
+      for(var i = 0; i<this.templateData.length; i++){
+        preparedTemplate += plusTemplate.replace(this.variableName, '_P[' + i + ']');
+      }
+
+      Looper.partialCache[templateName] = {
+        func : new Function('_P', "return '" + preparedTemplate + "'"),
+        length : this.templateData.length
+      }
+    }
+    return Looper.partialCache[templateName].func(this.templateData);
+  }
 
   function Writer() {
     this.functionCache = [];
-    this.funcKeys = 'loop ,partial, i, ielse, quote, apostrophe, element,';
-    this.functionArray = [this.loop, this.partial, this.i, this.ielse, this.quote, this.apostrophe, this.element];
+    this.funcKeys = 'loop ,partial, i, ielse, element,';
+    this.functionArray = [this.loop, this.partial, this.i, this.ielse, this.element];
   };
-  
+
   Writer.prototype.render = function(plusTemplate, templateData, loopNr) {
     var id = plusTemplate.id;
     var keys = Object.keys(templateData);
@@ -63,83 +108,26 @@
     
     return this.functionCache[id].apply(this, this.functionArray.concat(values));
   }
-  
-  
-  function Looper(templateData) {
-    this.templateData = templateData;
-    return this;
-  };
-
-  Looper.cache = [];
-
-  Looper.prototype.over = function(htmlSkeleton){
-    var id = fastHash(htmlSkeleton);
-
-    
-    if (!Looper.cache[id] || this.templateData.length != Looper.cache[id].length) {        
-      var preparedTemplate = '';
-      
-      for(var i = 0; i<this.templateData.length; i++){
-        preparedTemplate += htmlSkeleton.replace('element', 'element[' + i + ']');
-      }
-    
-      Looper.cache[id] = {
-        func : new Function('element', "return '" + preparedTemplate + "'"),
-        length : this.templateData.length
-      }
-    }
-
-    return Looper.cache[id].func.call(this, this.templateData);
-  }
-
-
 
   Writer.prototype.loop = function(templateData) {
     return new Looper(templateData);
   };
 
-Writer.prototype.partial = function(templateData, templateName) {
-  if (!partialLoopCache[templateName] || templateData.length != partialLoopCache[templateName].length) {
-    var preparedTemplate = '',
-        plusTemplate = plus.getTemplate(templateName).textContent.replace(/(\r\n|\n|\r)/gm,"");   
+  Writer.prototype.i = function(statement, showData){
+    return (statement !== void 0 && statement) ? showData || '' : '';
+  };
 
-    for(var i = 0; i<templateData.length; i++){
-      preparedTemplate += plusTemplate.replace('element', 'element[' + i + ']');
-    }
-
-    partialLoopCache[templateName] = {
-      func : new Function('p, element', "return '" + preparedTemplate + "'"),
-      length : templateData.length
-    }
-  }
-  return partialLoopCache[templateName].func(this, templateData);
-}
-
-Writer.prototype.i = function(statement, showData){
-  return (statement !== void 0 && statement) ? showData || '' : '';
-};
-
-Writer.prototype.ielse = function(statement, showData, elseData){
-  return (statement !== void 0 && statement) ? showData : (elseData || '');
-};
+  Writer.prototype.ielse = function(statement, showData, elseData){
+    return (statement !== void 0 && statement) ? showData : (elseData || '');
+  };
 
 
-Writer.prototype.quote = function(text) {
-  return (text) ? '\"' + text + '\"' : '\"'
-};
-Writer.prototype.apostrophe = function(text) {
-  return (text) ? '\'' + text + '\''  : '\'';
-};
+  var defaultScanner = new Scanner();
+  var defaultWriter = new Writer();
 
-Writer.prototype.element = '\'+ element +\'';
-
-var defaultScanner = new Scanner();
-var defaultWriter = new Writer();
-      
   plus.render = function(plusTemplate, templateData) {
     return defaultWriter.render(plusTemplate, templateData);
   }
-   
 
   plus.renderHTML = function(htmlSkeleton, templateData) {
     var plusTemplate = {
@@ -155,7 +143,7 @@ var defaultWriter = new Writer();
   }
 
   plus.name = "plus.js";
-  plus.version = "0.0.2";
+  plus.version = "0.0.4";
   plus.tags = [ "'+", "+'" ];
 
 }));

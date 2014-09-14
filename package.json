@@ -1,20 +1,20 @@
 {
-  "name": "table-flip",
-  "version": "0.0.3",
-  "description": "TableFlip-enable your homepage!",
+  "name": "plus.js",
+  "version": "0.0.4",
+  "description": "T",
   "main": "src/index.js",
   "scripts": {
     "test": "mocha tests/test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:reimertz/table-flip.git"
+    "url": "git@github.com:reimertz/plus.js.git"
   },
   "keywords": [
-    "table",
-    "flip",
-    "table-flip",
-    "awesome"
+    "template",
+    "templating-engine",
+    "engine",
+    "fast"
   ],
   "author": "Piérre Reimertz",
   "license": "MIT",

@@ -1,16 +1,20 @@
 plus.js
 =======
 
+A lightweight, templating engine that is all about speed.
 
-A lightweight, high-performance templating engine that based on one eureka moment:
+plus.js is based on the idea of using '+ +' as tags since this make the template evaluable.
+As long as you can trust your data (plus.js is using new Function to compile templates), you're fine.
 
-* Use '+ +' as tags since this make the template evaluable.
+plus.js also caches all the templates based on their ID's so, no need to compile a template twice.
 
-These enable the following:
+This makes it very fast! http://jsperf.com/mustache-against-handlebars/22
+
+***A trivial example:***
 ```html
 <script id="exampleTemplate"  type="text/template">
-'+ name +' is an lightweight and performant
-templating-engine.
+'+ name +' is a lightweight, templating engine that 
+is all about speed.
 </script>
 ```
 
@@ -19,10 +23,6 @@ plus.render(plus.getTemplate('exampleTemplate'), {name:'plus.js'});
 //plus.js is an lightweight and performant
 //templating-engine.
 ```
-
-plus.js also caches all the templates based on their ID's so, no need to compile a template twice.
-
-This makes it very fast! http://jsperf.com/mustache-against-handlebars/19
 
 ## Variables
 
@@ -38,19 +38,19 @@ plus.render(plus.getTemplate('frameworkTemplate'), {name:'plus.js', array:['Cats
 //<i>Cats love it!</i>
 ```
 
-## Functions
-plus.js has basic support for looping, partials and if-statements.
+## Loops
 
-###loop
+####loop(data).over('htmlSkeleton')
 
-When looping over an array, use '+ element +' where you want to
-inject each element of the array.
+When looping over an array,  use the default
+placeholder "element".
+
 
 ```html
 <script id="foxTemplate" type="text/template">
   <h2>What did the fox say?</h2>
   <ul>
-    '+ loop(foxSaid).over('<li>'+ element +'</li>') +'
+    '+ loop(foxSaid).over('<li>element</li>') +'
   </ul>
 </script>
 ```
@@ -61,35 +61,63 @@ var data = {
     'Ring-ding-ding-ding-dingeringeding!',
     'Gering-ding-ding-ding-dingeringeding!',
     'Gering-ding-ding-ding-dingeringeding!'
-]};
+  ]
+};
 
 plus.render(plus.getTemplate('foxTemplate'), data);
 //<h2>What did the fox say?</h2>
 //<ul>
-//  <li>'Ring-ding-ding-ding-dingeringeding!'</li>
-//  <li>'Gering-ding-ding-ding-dingeringeding!',</li>
-//  <li>'Gering-ding-ding-ding-dingeringeding!'</li>
+//  <li>Ring-ding-ding-ding-dingeringeding!</li>
+//  <li>Gering-ding-ding-ding-dingeringeding!</li>
+//  <li>Gering-ding-ding-ding-dingeringeding!</li>
 //</ul>
 ```
 
-###partial
+
+####loop(data).as('placeholder').over('htmlSkeleton')
+
+Use .as() to set your own placeholder in loops.
+
+```html
+<script id="foxTemplateAs" type="text/template">
+  <ul>
+    '+ loop(animals).as('animal').over('<li><b>animal</b></li>') +'
+  </ul>
+</script>
+```
+
+```javascript
+var data = {
+  animals : ['fox','pig','cat','dog']
+};
+
+plus.render(plus.getTemplate('foxTemplateAs'), data);
+//<ul>
+//  <li><b>fox</b></li>
+//  <li><b>pig</b></li>
+//  <li><b>cat</b></li>
+//  <li><b>dog</b></li>
+//</ul>
+```
+
+
+####loop(data).as('placeholder').overPartial('partialName')
 
 If you want to render more complex templates, use partials.
-
-As before, use '+ element +' to reach child-keys.
+As before, use "element" or call as() as a placeholder.
 
 ```html
 <script id="meTemplate.love"  type="text/template">
   <li>
-    <h4><b>'+ element.name +'</b></h4>
-    <p><i>'+ element.why +'</i></p>
+    <h4><b>'+ love.name +'</b></h4>
+    <p><i>'+ love.why +'</i></p>
   </li>
 </script>
 
 <script id="meTemplate"  type="text/template">
   <h2>I really '+ doWhat +' these kind of things:</h2>
   <ul>
-    '+  partial(data.love , 'meTemplate.love') +' 
+    '+  loop(loveList).as('love').overPartial('meTemplate.love') +' 
   </ul>
 </script>
 ```
@@ -97,7 +125,7 @@ As before, use '+ element +' to reach child-keys.
 ```javascript
 var data = {
   doWhat: 'love',
-  love: [
+  loveList: [
     {
       name: 'A specific girl',
       why: 'Because she is my everything.'
@@ -121,11 +149,7 @@ plus.render(plus.getTemplate('meTemplate'), data);
 //</ul>
 ```
 
-###if-statements
-
-If you want to render more complex templates, use partials.
-
-As before, use '+ element +' to reach child-keys.
+## if-statements
 
 ```html
 <input plus-template id="ifTemplate"  type="text/template">
@@ -144,47 +168,25 @@ plus.render(plus.getTemplate('meTemplate'), data);
 //and <i>this is a else-statement</i>
 ```
 
-## Utilities
-
-### Quotes
-```javascript
-var data = {
-  mail:'pierre.reimertz@gmail.com'
-};
-
-plus.renderHTML('<a href='+ quote('mailto:' + mail) +'> '+ mail+'</a>', data);
-//<a href="mailto:pierre.reimertz@gmail.com">pierre.reimertz@gmail.com</a>
-```
-
-### Apostrophes
-```javascript
-var data = {
-  name: 'plus.js'
-};
-
-plus.renderHTML('<span>'+ quote(name) +'</span>', data);
-//<span>'plus.js'</span>
-```
-
 ### Example
 #### template
 ```html
 <script id="janeTemplate.gear"  type="text/template">
-<li>'+ elemen.name +'</li>
+<li>'+ gear.name +'</li>
 </script>
 
 <script id="janeTemplate"  type="text/template">
 <h1>'+ name +'</h1>
 <h3>'+ age +' years old</h3>
-<a href='+ quote('mailto:' + mail) +'> '+ mail+'</a>
-<h3>'+ mail +' years old</h3>
+<a href="mailto:'+ mail +'">'+ mail +'</a>
+<h3>'+ age +' years old</h3>
 Likes:
 <ul>
-'+  loop(likes).over('<li>'+ element +'</li>') +'  
+'+  loop(likes).as('like').over('<li>like</li>') +'  
 </ul>
 
 <ul>
-'+  partial(gear , 'janeTemplate.gear') +' 
+'+  loop(gearList).as('gear').overPartial('janeTemplate.gear') +' 
 </ul>
 </script>
 ```
@@ -195,14 +197,14 @@ var jane = {
   name: 'Jane Complex',
   mail: 'jane@d.oe',
   likes: ['music','programming','beer'],
-  gear:[{
-    name: 'macbook pro retina'
+  gearList:[{
+    name: 'Computer'
   },{
-    name: 'macbook white'
+    name: 'Coffee Maker'
   },{
-    name: 'iPad Air'
+    name: 'Bike'
   },{
-    name: 'iPhone 4S'
+    name: 'Cat'
   }]
 };
 ```
@@ -210,17 +212,19 @@ var jane = {
 ```javascript
 plus.render(plus.getTemplate('janeTemplate'),jane);
 //<h1>Jane Complex</h1>
-//<h3>23 years old</h3><a href="mailto:jane@d.oe"> jane@d.oe</a>
-//<h3>jane@d.oe years old</h3>Likes:
+//<h3>23 years old</h3>
+//<a href="mailto:jane@d.oe"> jane@d.oe</a>
+//<h3>jane@d.oe years old</h3>
+//Likes:
 //<ul>
     //<li>music</li>
     //<li>programming</li>
     //<li>beer</li>
 //</ul>Gear:
 //<ul>
-    //<li>macbook pro retina</li>
-    //<li>macbook white</li>
-    //<li>iPad Air</li>
-    //<li>iPhone 4S</li>
+    //<li>Computer</li>
+    //<li>Coffee Maker</li>
+    //<li>Bike</li>
+    //<li>Cat</li>
 //</ul>
 ```
