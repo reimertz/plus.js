@@ -10,7 +10,7 @@ plus.js also caches all the templates based on their ID's so, no need to compile
 
 This makes it very fast! http://jsperf.com/mustache-against-handlebars/22
 
-***A trivial example:***
+*** A trivial example:***
 ```html
 <script id="exampleTemplate"  type="text/template">
 '+ name +' is a lightweight, templating engine that 
@@ -40,7 +40,7 @@ plus.render(plus.getTemplate('frameworkTemplate'), {name:'plus.js', array:['Cats
 
 ## Loops
 
-####loop(data).over('htmlSkeleton')
+#### loop(data).over('htmlSkeleton')
 
 When looping over an array,  use the default
 placeholder "element".
@@ -74,7 +74,7 @@ plus.render(plus.getTemplate('foxTemplate'), data);
 ```
 
 
-####loop(data).as('placeholder').over('htmlSkeleton')
+#### loop(data).as('placeholder').over('htmlSkeleton')
 
 Use .as() to set your own placeholder in loops.
 
@@ -101,7 +101,7 @@ plus.render(plus.getTemplate('foxTemplateAs'), data);
 ```
 
 
-####loop(data).as('placeholder').overPartial('partialName')
+#### loop(data).as('placeholder').overPartial('partialName')
 
 If you want to render more complex templates, use partials.
 As before, use "element" or call as() as a placeholder.
